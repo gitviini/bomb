@@ -4,59 +4,132 @@ from pygame.locals import *
 WHITE = (255,255,255)
 ORANGE = (255, 125, 0)
 BLACK = (0,0,0)
-RED = (220,0,0)
+RED = (255,0,0)
 BLUE = (0,0,255)
 YELLOW = (255,255,0)
 
+def pos_to_node(tgt, node_tilemap, square_size, init_pos):
+	pos = {
+		"x": tgt["pos"]["x"]/square_size - init_pos["x"],
+		"y'": tgt["pos"]["y"]/square_size - init_pos["y"]
+	}
+
+	node_len = {
+		"x": len(node_tilemap[0]),
+		"y": len(node_tilemap),
+	}
+
+
+def draw_ui(surface, src):
+	bomb = {
+		"pos": {"x": 0, "y": 0},
+		"sprite": [
+			[0,1,1,1,0],
+			[1,1,1,1,1],
+			[1,1,1,1,1],
+			[1,1,1,1,1],
+			[0,1,1,1,0],
+		],
+		"color": ORANGE
+	}
+	life = {
+		"pos": {"x": 0, "y": 40},
+		"sprite": [
+			[0,1,0,1,0],
+			[1,1,1,1,1],
+			[1,1,1,1,1],
+			[0,1,1,1,0],
+			[0,0,1,0,0],
+		],
+		"color": RED
+	}
+
+	for x in range(src["bomb"]):
+		bomb["pos"]["x"] = x * 30
+		draw_sprite(surface, bomb)
+	for x in range(src["life"]):
+		life["pos"]["x"] = x * 30
+		draw_sprite(surface, life)
+
+
 def draw_sprite(surface, src):
-	if(src.get("sprite") == None):
-		return
+	sprite_len = {"x": len(src["sprite"][0]), "y": len(src["sprite"])}
+	for x in range(sprite_len["x"]):
+		for y in range(sprite_len["y"]):
+			pixel = src["sprite"][y][x]
 
-	pygame.draw.rect(
-        surface,
-        rect=(
-            src["pos"]["x"],
-            src["pos"]["y"],
-            src["len"]["x"],
-            src["len"]["y"],
-        ),
-        color=src["color"],
-    )
+			if(not pixel):
+				continue
+
+			pygame.draw.rect(
+		        surface,
+		        rect=(
+		            src["pos"]["x"] + x * 4,
+		            src["pos"]["y"] + y * 4,
+		            4,
+		            4,
+		        ),
+		        color=src["color"],
+		    )
 
 
-def timer_bomb(bomb, entities):
+def explosion_bomb(bomb, node_tilemap):
+	explosion_len = 5
+
+def timer_bomb(tgt, bomb, entities, node_tilemap):
+	if(bomb["timer"] < 10):
+		bomb["color"] = RED
+	if(bomb["timer"] < 1):
+		bomb["color"] = WHITE
 	if(bomb["timer"] == 0):
-		print("remove")
-		print(entities)
 		entities.remove(bomb)
-		print(entities)
+		explosion_bomb(bomb, node_tilemap)
+		tgt["bomb"] += 1
 		return
 
 	bomb["timer"] -= 1
 
 def set_bomb(tgt, entities, square_size):
+	if(not tgt["bomb"] > 0):
+		return
 	pos = tgt["pos"]
+	for entity in entities:
+		if(entity.get("timer") != None):
+			if(entity["pos"]["x"] == pos["x"] and entity["pos"]["y"] == pos["y"]):
+				return
+	tgt["bomb"] -= 1
 	bomb = {
 		"pos": {"x": pos["x"], "y": pos["y"]},
 		"len": {"x": square_size, "y": square_size},
 		"collision": {"is_collide":False,"type":"damage"},
-		"color": RED,
-		"timer": 30
+		"color": ORANGE,
+		"timer": 30,
+		"sprite": [
+			[0,1,1,1,0],
+			[1,1,1,1,1],
+			[1,1,1,1,1],
+			[1,1,1,1,1],
+			[0,1,1,1,0],
+		]
 	}
 	entities.append(bomb)
 
 
 def draw_rect(surface, src):
-    pygame.draw.rect(
-        surface,
-        rect=(
-            src["pos"]["x"],
-            src["pos"]["y"],
-            src["len"]["x"],
-            src["len"]["y"],
-        ),
-        color=src["color"],
-    )
+	if(src.get("sprite") != None):
+		draw_sprite(surface, src)
+		return
+
+	pygame.draw.rect(
+	    surface,
+	    rect=(
+	        src["pos"]["x"],
+	        src["pos"]["y"],
+	        src["len"]["x"],
+	        src["len"]["y"],
+	    ),
+	    color=src["color"],
+	)
 
 def node_to_tile(node, pos, square_size) -> dict[any]:
 	# default color: white

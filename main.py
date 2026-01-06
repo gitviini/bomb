@@ -45,14 +45,17 @@ def main():
         "vel": {"x": 0, "y": 0},
         "color": YELLOW,
         "collision": {"is_collide":False,"type":None},
+        "bomb": 3,
+        "life": 3,
+        "sprite": [
+            [0,1,1,1,0],
+            [1,1,1,1,1],
+            [1,1,1,1,1],
+            [1,1,1,1,1],
+            [1,0,0,0,1],
+        ]
     }
-    entities = [{
-        "pos": {"x": 100, "y": 0},
-        "len": {"x": 20, "y": 20},
-        "vel": {"x": 0, "y": 0},
-        "color": RED,
-        "collision": {"is_collide":False,"type":"damage"},
-    }]
+    entities = []
     key_list = []
     surface = None
     _running = True
@@ -77,6 +80,7 @@ def main():
         for key in key_list:
             handle_key(key=key, entity=player, step=square_size)
         surface.fill((0, 0, 0))
+        draw_ui(surface, player)
         tilemap = draw_tilemap(surface=surface, node_tilemap=node_tilemap, square_size=square_size, init_pos=init_pos)
         
         is_collision(player, tilemap)
@@ -88,7 +92,7 @@ def main():
 
         for entity in entities:
             if(entity.get("timer") != None):
-                timer_bomb(entity, entities)
+                timer_bomb(player, entity, entities, node_tilemap)
             draw_rect(surface, entity)
 
         draw_rect(surface, player)
