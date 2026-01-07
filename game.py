@@ -8,6 +8,14 @@ RED = (255, 0, 0)
 BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
+def draw_text(surface, text, pos, color):
+    font = pygame.font.SysFont(None, 38)
+    obj = font.render(text, True, color)
+    obj_rect = obj.get_rect()
+    obj_rect.y = pos["y"]
+    obj_rect.x = pos["x"]
+    surface.blit(obj, obj_rect)
+
 
 def pos_to_node(tgt, square_size, init_pos):
     pos = {
@@ -82,9 +90,7 @@ def explosion_bomb(bomb, node_tilemap, square_size, init_pos):
     explosion_len = 3
     tilemap_len = {"x": len(node_tilemap[0]), "y": len(node_tilemap)}
     bomb_pos = pos_to_node(tgt=bomb, square_size=square_size, init_pos=init_pos)
-    print(bomb_pos)
     for y in range(bomb_pos["y"], bomb_pos["y"] + explosion_len, 1):
-        print(y)
         if (not (y >= 0 and y < tilemap_len["y"])):
             continue
 
@@ -96,7 +102,6 @@ def explosion_bomb(bomb, node_tilemap, square_size, init_pos):
         node_tilemap[y][bomb_pos["x"]] = handle_explosion(node)
     
     for y in range(bomb_pos["y"], bomb_pos["y"] - explosion_len, -1):
-        print(y)
         if (not (y >= 0 and y < tilemap_len["y"])):
             continue
         node = node_tilemap[y][bomb_pos["x"]]
@@ -109,7 +114,6 @@ def explosion_bomb(bomb, node_tilemap, square_size, init_pos):
     for x in range(bomb_pos["x"], bomb_pos["x"] + explosion_len, 1):
         if (not (x >= 0 and x < tilemap_len["x"])):
             continue
-        print("x",x)
 
         node = node_tilemap[bomb_pos["y"]][x]
 
@@ -121,7 +125,6 @@ def explosion_bomb(bomb, node_tilemap, square_size, init_pos):
     for x in range(bomb_pos["x"], bomb_pos["x"] - explosion_len, -1):
         if (not (x >= 0 and x < tilemap_len["x"])):
             continue
-        print("x",x)
 
         node = node_tilemap[bomb_pos["y"]][x]
 
