@@ -22,8 +22,9 @@ def pos_to_node(tgt, node_tilemap, square_size, init_pos):
 
 
 def draw_ui(surface, src):
+    padding = 10
     bomb = {
-        "pos": {"x": 0, "y": 40},
+        "pos": {"x": 0, "y": 30 + padding},
         "sprite": [
             [0, 0, 0, 1, 1],
             [0, 0, 1, 0, 0],
@@ -34,7 +35,7 @@ def draw_ui(surface, src):
         "color": ORANGE,
     }
     life = {
-        "pos": {"x": 0, "y": 0},
+        "pos": {"x": 0, "y": padding},
         "sprite": [
             [0, 1, 0, 1, 0],
             [1, 1, 1, 1, 1],
@@ -46,10 +47,10 @@ def draw_ui(surface, src):
     }
 
     for x in range(src["life"]):
-        life["pos"]["x"] = x * 30
+        life["pos"]["x"] = x * 30 + padding
         draw_sprite(surface, life)
     for x in range(src["bomb"]):
-        bomb["pos"]["x"] = x * 30
+        bomb["pos"]["x"] = x * 30 + padding
         draw_sprite(surface, bomb)
 
 
