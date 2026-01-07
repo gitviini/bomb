@@ -25,11 +25,11 @@ def main():
     size = weight, height = 640, 400
     node_tilemap = [
     [1,1,1,1,1,1,1,1,1,1,1,1,1,1,1,1],
-    [1,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1],
+    [1,0,2,0,0,0,0,0,0,0,0,0,0,0,0,1],
     [1,0,1,0,1,1,1,1,1,0,1,0,1,1,0,1],
     [1,0,1,0,0,0,0,0,0,0,1,0,0,0,0,1],
-    [1,0,1,1,1,0,1,1,0,1,1,1,0,1,0,1],
-    [1,0,0,0,0,0,1,0,0,0,0,0,0,0,0,1],
+    [1,0,1,1,1,3,1,1,3,1,1,1,0,1,0,1],
+    [1,0,3,0,0,0,1,0,0,0,0,0,0,0,0,1],
     [1,0,1,0,1,0,0,0,1,0,1,0,1,1,0,1],
     [1,0,1,0,1,1,1,1,1,0,1,0,0,1,0,1],
     [1,0,1,0,1,0,0,0,1,0,0,0,0,1,0,1],
@@ -46,15 +46,16 @@ def main():
         "color": YELLOW,
         "collision": {"is_collide":False,"type":None},
         "bomb": 3,
-        "life": 3,
+        "life": 5,
         "sprite": [
             [0,1,1,1,0],
             [1,1,1,1,1],
-            [1,1,1,1,1],
+            [0,1,1,1,0],
             [1,1,1,1,1],
             [1,0,0,0,1],
         ]
     }
+    old_pos = {"x": player["pos"]["x"], "y": player["pos"]["y"]}
     entities = []
     key_list = []
     surface = None
@@ -84,9 +85,14 @@ def main():
         tilemap = draw_tilemap(surface=surface, node_tilemap=node_tilemap, square_size=square_size, init_pos=init_pos)
         
         is_collision(player, tilemap)
-        
+
         if(not cooldown):
-            cooldown = 10
+            if(player["collision"]["type"] == "damage"):
+                player["life"] -= 1
+                cooldown = 10
+                player["color"] = WHITE
+            else:
+                player["color"] = YELLOW
 
         move_entity(player)
 
