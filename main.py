@@ -49,8 +49,8 @@ def main():
         "life": 5,
         "sprite": [
             [0,1,1,1,0],
-            [1,1,1,1,1],
-            [0,1,1,1,0],
+            [1,0,1,0,1],
+            [1,0,1,0,1],
             [1,1,1,1,1],
             [1,0,0,0,1],
         ]
@@ -82,12 +82,14 @@ def main():
             handle_key(key=key, entity=player, step=square_size)
         surface.fill((0, 0, 0))
         draw_ui(surface, player)
+        timer_explosion(tilemap=tilemap, node_tilemap=node_tilemap, square_size=square_size, init_pos=init_pos)
+
         tilemap = draw_tilemap(surface=surface, node_tilemap=node_tilemap, square_size=square_size, init_pos=init_pos)
         
         is_collision(player, tilemap)
 
         if(not cooldown):
-            if(player["collision"]["type"] == "damage"):
+            if(player["collision"]["type"] in ["damage","explosion"]):
                 player["life"] -= 1
                 cooldown = 10
                 player["color"] = WHITE
@@ -98,7 +100,7 @@ def main():
 
         for entity in entities:
             if(entity.get("timer") != None):
-                timer_bomb(player, entity, entities, node_tilemap)
+                timer_bomb(player, entity, entities, node_tilemap, square_size, init_pos)
             draw_rect(surface, entity)
 
         draw_rect(surface, player)

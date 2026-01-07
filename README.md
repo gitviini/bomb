@@ -2,7 +2,7 @@
 
 <div align="center">
 
-![exemplo](./image.png)
+![exemplo](./example.png)
 
 <span>version 0.0.3</span>
 

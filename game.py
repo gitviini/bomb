@@ -9,16 +9,13 @@ BLUE = (0, 0, 255)
 YELLOW = (255, 255, 0)
 
 
-def pos_to_node(tgt, node_tilemap, square_size, init_pos):
+def pos_to_node(tgt, square_size, init_pos):
     pos = {
-        "x": tgt["pos"]["x"] / square_size - init_pos["x"],
-        "y'": tgt["pos"]["y"] / square_size - init_pos["y"],
+        "x": int((tgt["pos"]["x"] - init_pos["x"]) / square_size),
+        "y": int((tgt["pos"]["y"]  - init_pos["y"]) / square_size),
     }
 
-    node_len = {
-        "x": len(node_tilemap[0]),
-        "y": len(node_tilemap),
-    }
+    return pos
 
 
 def draw_ui(surface, src):
@@ -74,19 +71,80 @@ def draw_sprite(surface, src):
                 color=src["color"],
             )
 
+def handle_explosion(node) -> int:
+    if(node == 0):
+        return 4
+    if(node == 3):
+        return 4
+    return 4
 
-def explosion_bomb(bomb, node_tilemap):
-    explosion_len = 5
+def explosion_bomb(bomb, node_tilemap, square_size, init_pos):
+    explosion_len = 3
+    tilemap_len = {"x": len(node_tilemap[0]), "y": len(node_tilemap)}
+    bomb_pos = pos_to_node(tgt=bomb, square_size=square_size, init_pos=init_pos)
+    print(bomb_pos)
+    for y in range(bomb_pos["y"], bomb_pos["y"] + explosion_len, 1):
+        print(y)
+        if (not (y >= 0 and y < tilemap_len["y"])):
+            continue
 
+        node = node_tilemap[y][bomb_pos["x"]]
 
-def timer_bomb(tgt, bomb, entities, node_tilemap):
+        if(node == 1):
+            break
+
+        node_tilemap[y][bomb_pos["x"]] = handle_explosion(node)
+    
+    for y in range(bomb_pos["y"], bomb_pos["y"] - explosion_len, -1):
+        print(y)
+        if (not (y >= 0 and y < tilemap_len["y"])):
+            continue
+        node = node_tilemap[y][bomb_pos["x"]]
+
+        if(node == 1):
+            break
+
+        node_tilemap[y][bomb_pos["x"]] = handle_explosion(node)
+    
+    for x in range(bomb_pos["x"], bomb_pos["x"] + explosion_len, 1):
+        if (not (x >= 0 and x < tilemap_len["x"])):
+            continue
+        print("x",x)
+
+        node = node_tilemap[bomb_pos["y"]][x]
+
+        if(node == 1):
+            break
+
+        node_tilemap[bomb_pos["y"]][x] = handle_explosion(node)
+    
+    for x in range(bomb_pos["x"], bomb_pos["x"] - explosion_len, -1):
+        if (not (x >= 0 and x < tilemap_len["x"])):
+            continue
+        print("x",x)
+
+        node = node_tilemap[bomb_pos["y"]][x]
+
+        if(node == 1):
+            break
+
+        node_tilemap[bomb_pos["y"]][x] = handle_explosion(node)
+                
+def timer_explosion(tilemap, node_tilemap, square_size, init_pos):
+    for i in range(len(tilemap)):
+            tile = tilemap[i]
+            tile_node_pos = pos_to_node(tile, square_size, init_pos)
+            if(tile["collision"]["type"] == "explosion"):
+                node_tilemap[tile_node_pos["y"]][tile_node_pos["x"]] = 0
+
+def timer_bomb(tgt, bomb, entities, node_tilemap, square_size, init_pos):
     if bomb["timer"] < 10:
         bomb["color"] = RED
     if bomb["timer"] < 1:
         bomb["color"] = WHITE
     if bomb["timer"] == 0:
         entities.remove(bomb)
-        explosion_bomb(bomb, node_tilemap)
+        explosion_bomb(bomb=bomb, node_tilemap=node_tilemap, square_size=square_size, init_pos=init_pos)
         tgt["bomb"] += 1
         return
 
@@ -168,7 +226,6 @@ def node_to_tile(node, pos, square_size) -> dict[any]:
                 [0, 1, 0, 0, 0],
                 [1, 1, 1, 0, 0],
             ]
-        # red
         case 3:
             color = WHITE
             type_collision = "box"
@@ -179,6 +236,17 @@ def node_to_tile(node, pos, square_size) -> dict[any]:
                 [1, 0, 0, 1, 1],
                 [1, 1, 1, 1, 1],
             ]
+        case 4:
+            color = RED
+            type_collision = "explosion"
+            sprite = [
+                [1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1],
+                [1, 1, 1, 1, 1],
+            ]
+            
 
     tile = {
         "pos": {"x": pos["x"], "y": pos["y"]},
